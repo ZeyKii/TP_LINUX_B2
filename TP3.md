@@ -309,7 +309,418 @@ net.ipv6.route.flush = 1
 ### Section 5.2.1
 
 ```
+[fmaxance@Rocky ~]$ stat -Lc "%n %a %u/%U %g/%G" /etc/ssh/sshd_config
+/etc/ssh/sshd_config 600 0/root 0/root
+```
 
+### Section 5.2.2
+
+```
+[fmaxance@Rocky ~]$ bash audit.sh 
+
+- Audit Result:
+ ** PASS **
+```
+
+### Section 5.2.3
+
+```
+[root@Rocky fmaxance]# bash audit.sh 
+ - Checking private key file: "/etc/ssh/ssh_host_ecdsa_key.pub"
+ - File: "/etc/ssh/ssh_host_ecdsa_key.pub" is owned by: "" changing
+owner to "root"
+ - File: "/etc/ssh/ssh_host_ecdsa_key.pub" is owned by group ""
+changing to group "root"
+ - Checking private key file: "/etc/ssh/ssh_host_ed25519_key.pub"
+ - File: "/etc/ssh/ssh_host_ed25519_key.pub" is owned by: "" changing
+owner to "root"
+ - File: "/etc/ssh/ssh_host_ed25519_key.pub" is owned by group ""
+changing to group "root"
+ - Checking private key file: "/etc/ssh/ssh_host_rsa_key.pub"
+ - File: "/etc/ssh/ssh_host_rsa_key.pub" is owned by: "" changing
+owner to "root"
+ - File: "/etc/ssh/ssh_host_rsa_key.pub" is owned by group ""
+changing to group "root"
+```
+
+### Section 5.2.4
+
+```
+[root@Rocky fmaxance]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep -Pi '^\h*(allow|deny)(users|groups)\h+\H+(\h+.*)?$'main: sshd: ssh-rsa algorithm is disabled
+[root@Rocky fmaxance]# 
+[root@Rocky fmaxance]# grep -Pi '^\h*(allow|deny)(users|groups)\h+\H+(\h+.*)?$' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf
+```
+
+### Section 5.2.5
+
+```
+[root@Rocky fmaxance]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep loglevel
+main: sshd: ssh-rsa algorithm is disabled
+loglevel INFO
+
+[root@Rocky fmaxance]# sudo grep -Pi -- '^\h*loglevel' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf | grep -Evi '(VERBOSE|INFO)'
+[root@Rocky fmaxance]# 
+```
+
+### Section 5.2.6
+
+```
+[root@Rocky fmaxance]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep -i usepam
+main: sshd: ssh-rsa algorithm is disabled
+usepam yes
+
+[root@Rocky fmaxance]# grep -Pi '^\h*UsePAM\b' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf | grep -Evi 'yes'
+```
+
+### Section 5.2.7
+
+```
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep permitrootlogin
+main: sshd: ssh-rsa algorithm is disabled
+permitrootlogin no
+```
+
+### Section 5.2.8
+
+```
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep hostbasedauthentication
+main: sshd: ssh-rsa algorithm is disabled
+hostbasedauthentication no
+
+[root@Rocky sshd_config.d]# grep -Pi '^\h*HostbasedAuthentication\b' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf | grep -Evi 'no'
+[root@Rocky sshd_config.d]# 
+```
+
+### Section 5.2.9
+
+```
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep permitemptypasswords
+main: sshd: ssh-rsa algorithm is disabled
+permitemptypasswords no
+
+[root@Rocky sshd_config.d]# grep -Pi '^\h*PermitEmptyPasswords\b' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf | grep -Evi 'no'
+[root@Rocky sshd_config.d]# 
+```
+
+### Section 5.2.10
+
+```
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep permituserenvironment
+main: sshd: ssh-rsa algorithm is disabled
+permituserenvironment no
+
+[root@Rocky sshd_config.d]# grep -Pi '^\h*PermitUserEnvironment\b' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf | grep -Evi 'no'
+[root@Rocky sshd_config.d]# 
+```
+
+### Section 5.2.11
+
+```
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep ignorerhosts
+main: sshd: ssh-rsa algorithm is disabled
+ignorerhosts yes
+
+[root@Rocky sshd_config.d]# grep -Pi '^\h*ignorerhosts\b' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf | grep -Evi 'yes'
+[root@Rocky sshd_config.d]# 
+```
+
+### Section 5.2.12
+
+```
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep -i x11forwarding
+main: sshd: ssh-rsa algorithm is disabled
+x11forwarding no
+
+[root@Rocky sshd_config.d]# grep -Pi '^\h*X11Forwarding\b' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf | grep -Evi 'no'
+[root@Rocky sshd_config.d]# 
+```
+
+### Section 5.2.13
+
+```
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep -i allowtcpforwarding
+main: sshd: ssh-rsa algorithm is disabled
+allowtcpforwarding no
+
+[root@Rocky sshd_config.d]# grep -Pi '^\h*AllowTcpForwarding\b' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf | grep -Evi 'no'
+[root@Rocky sshd_config.d]# 
+```
+
+### Section 5.2.14
+
+```
+[root@Rocky sshd_config.d]# grep -i '^\s*CRYPTO_POLICY=' /etc/sysconfig/sshd
+/etc/ssh/sshd_config.d/*.conf
+[root@Rocky sshd_config.d]# 
+```
+
+### Section 5.2.15
+
+```
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep banner
+
+banner /etc/issue.net
+```
+
+### Section 5.2.16
+
+```
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep maxauthtries
+
+maxauthtries 4
+```
+
+### Section 5.2.17
+
+```
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep -i maxstartups
+main: sshd: ssh-rsa algorithm is disabled
+maxstartups 10:30:60
+
+[root@Rocky sshd_config.d]# grep -Ei '^\s*maxstartups\s+(((1[1-9]|[1-9][0-9][0-9]+):([0-9]+):([0-9]+))|(([0-9]+):(3[1-9]|[4-9][0-9]|[1-9][0-9][0-9]+):([0-9]+))|(([0-9]+):([0-9]+):(6[1-9]|[7-9][0-9]|[1-9][0-9][0-9]+)))' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf
+[root@Rocky sshd_config.d]# 
+```
+
+### Section 5.2.18
+
+```
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep -i maxsessions
+main: sshd: ssh-rsa algorithm is disabled
+maxsessions 10
+
+[root@Rocky sshd_config.d]# grep -Ei '^\s*MaxSessions\s+(1[1-9]|[2-9][0-9]|[1-9][0-9][0-9]+)' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf
+[root@Rocky sshd_config.d]# 
+```
+
+### Section 5.2.19
+
+```
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep logingracetime
+
+logingracetime 60
+```
+
+### Section 5.2.20
+
+```
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep clientaliveinterval
+clientaliveinterval 15
+
+[root@Rocky sshd_config.d]# sshd -T -C user=root -C host="$(hostname)" -C addr="$(grep $(hostname) /etc/hosts | awk '{print $1}')" | grep clientalivecountmax
+clientalivecountmax 3
+```
+
+### Section 6.1.1
+
+```
+[root@Rocky sshd_config.d]# stat -Lc "%n %a %u/%U %g/%G" /etc/passwd
+/etc/passwd 644 0/root 0/root
+```
+
+### Section 6.1.2
+
+```
+[root@Rocky sshd_config.d]# stat -Lc "%n %a %u/%U %g/%G" /etc/passwd-
+/etc/passwd- 644 0/root 0/root
+```
+
+### Section 6.1.3
+
+```
+[root@Rocky sshd_config.d]# stat -Lc "%n %a %u/%U %g/%G" /etc/group
+/etc/group 644 0/root 0/root
+```
+
+### Section 6.1.4
+
+```
+[root@Rocky sshd_config.d]# stat -Lc "%n %a %u/%U %g/%G" /etc/group-
+/etc/group- 644 0/root 0/root
+```
+
+### Section 6.1.5
+
+```
+[root@Rocky sshd_config.d]# stat -Lc "%n %a %u/%U %g/%G" /etc/shadow
+/etc/shadow 0 0/root 0/root
+```
+
+### Section 6.1.6
+
+```
+[root@Rocky sshd_config.d]# stat -Lc "%n %a %u/%U %g/%G" /etc/shadow-
+/etc/shadow- 0 0/root 0/root
+```
+
+### Section 6.1.7
+
+```
+[root@Rocky sshd_config.d]# stat -Lc "%n %a %u/%U %g/%G" /etc/gshadow
+/etc/gshadow 0 0/root 0/root
+```
+
+### Section 6.1.8
+
+```
+[root@Rocky sshd_config.d]# stat -Lc "%n %a %u/%U %g/%G" /etc/gshadow-
+/etc/gshadow- 0 0/root 0/root
+```
+
+### Section 6.1.9
+
+```
+[root@Rocky sshd_config.d]# df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm -0002
+[root@Rocky sshd_config.d]# super merci y'a aucun fichier :3
+> ah
+> ^C
+[root@Rocky sshd_config.d]# 
+```
+
+### Section 6.1.10
+
+```
+[root@Rocky sshd_config.d]# df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser
+[root@Rocky sshd_config.d]# 
+```
+
+### Section 6.2.1
+
+```
+[root@Rocky sshd_config.d]# awk -F: '($2 != "x" ) { print $1 " is not set to shadowed passwords "}' /etc/passwd
+[root@Rocky sshd_config.d]# 
+```
+
+### Section 6.2.2
+
+```
+[root@Rocky sshd_config.d]# awk -F: '($2 == "" ) { print $1 " does not have a password "}' /etc/shadow
+[root@Rocky sshd_config.d]# 
+```
+
+### Section 6.2.3
+
+```
+[root@Rocky fmaxance]# cat audit.sh 
+#!/bin/bash
+for i in $(cut -s -d: -f4 /etc/passwd | sort -u ); do
+grep -q -P "^.*?:[^:]*:$i:" /etc/group
+if [ $? -ne 0 ]; then
+echo "Group $i is referenced by /etc/passwd but does not exist in
+/etc/group"
+fi
+done
+[root@Rocky fmaxance]# bash audit.sh 
+[root@Rocky fmaxance]# 
+```
+
+### Section 6.2.4
+
+```
+[root@Rocky fmaxance]# cat audit.sh 
+#!/bin/bash
+cut -f3 -d":" /etc/passwd | sort -n | uniq -c | while read x ; do
+[ -z "$x" ] && break
+set - $x
+if [ $1 -gt 1 ]; then
+users=$(awk -F: '($3 == n) { print $1 }' n=$2 /etc/passwd | xargs)
+echo "Duplicate UID ($2): $users"
+fi
+done
+[root@Rocky fmaxance]# bash audit.sh 
+[root@Rocky fmaxance]# 
+```
+
+### Section 6.2.5
+
+```
+[root@Rocky fmaxance]# cat audit.sh 
+#!/bin/bash
+cut -d: -f3 /etc/group | sort | uniq -d | while read x ; do
+echo "Duplicate GID ($x) in /etc/group"
+done
+[root@Rocky fmaxance]# bash audit.sh 
+[root@Rocky fmaxance]# 
+```
+
+### Section 6.2.6
+
+```
+[root@Rocky fmaxance]# cat audit.sh 
+#!/bin/bash
+cut -d: -f1 /etc/passwd | sort | uniq -d | while read -r x; do
+echo "Duplicate login name $x in /etc/passwd"
+done
+[root@Rocky fmaxance]# bash audit.sh 
+[root@Rocky fmaxance]# 
+```
+
+### Section 6.2.7
+
+```
+[root@Rocky fmaxance]# cat audit.sh 
+#!/bin/bash
+cut -d: -f1 /etc/group | sort | uniq -d | while read -r x; do
+echo "Duplicate group name $x in /etc/group"
+done
+[root@Rocky fmaxance]# bash audit.sh 
+[root@Rocky fmaxance]# 
+```
+
+### Section 6.2.8
+
+```
+[root@Rocky fmaxance]# cat audit.sh 
+#!/bin/bash
+RPCV="$(sudo -Hiu root env | grep '^PATH' | cut -d= -f2)"
+echo "$RPCV" | grep -q "::" && echo "root's path contains a empty directory
+(::)"
+echo "$RPCV" | grep -q ":$" && echo "root's path contains a trailing (:)"
+for x in $(echo "$RPCV" | tr ":" " "); do
+if [ -d "$x" ]; then
+ls -ldH "$x" | awk '$9 == "." {print "PATH contains current working
+directory (.)"}
+$3 != "root" {print $9, "is not owned by root"}
+substr($1,6,1) != "-" {print $9, "is group writable"}
+substr($1,9,1) != "-" {print $9, "is world writable"}'
+else
+echo "$x is not a directory"
+fi
+done
+[root@Rocky fmaxance]# bash audit.sh
+[root@Rocky fmaxance]#
+```
+
+### Section 6.2.9
+
+```
+[root@Rocky fmaxance]# awk -F: '($3 == 0) { print $1 }' /etc/passwd
+root
+```
+
+### Section 6.2.10
+
+```
+[root@Rocky fmaxance]# cat audit.sh 
+#!/usr/bin/env bash
+{
+output=""
+valid_shells="^($( sed -rn '/^\//{s,/,\\\\/,g;p}' /etc/shells | paste -s -
+d '|' - ))$"
+awk -v pat="$valid_shells" -F: '$(NF) ~ pat { print $1 " " $(NF-1) }'
+/etc/passwd | (while read -r user home; do
+[ ! -d "$home" ] && output="$output\n - User \"$user\" home directory
+\"$home\" doesn't exist"
+done
+if [ -z "$output" ]; then
+echo -e "\n-PASSED: - All local interactive users have a home
+directory\n"
+else
+echo -e "\n- FAILED:\n$output\n"
+fi
+)
+}
+[root@Rocky fmaxance]# bash audit.sh
+[root@Rocky fmaxance]#
 ```
 
 ## 2. Conf SSH
