@@ -725,25 +725,421 @@ fi
 
 ## 2. Conf SSH
 
-![SSH](./img/ssh.jpg)
-
 🌞 **Chiffrement fort côté serveur**
 
-- trouver une ressource de confiance (je veux le lien en compte-rendu)
-- configurer le serveur SSH pour qu'il utilise des paramètres forts en terme de chiffrement (je veux le fichier de conf dans le compte-rendu)
-  - conf dans le fichier de conf
-  - regénérer des clés pour le serveur ?
-  - regénérer les paramètres Diffie-Hellman ? (se renseigner sur Diffie-Hellman ?)
+Ressource : https://www.digitalocean.com/community/tutorials/how-to-harden-openssh-on-ubuntu-20-04
+
+```
+[fmaxance@Rocky ~]$ sudo cat /etc/ssh/sshd_config
+#       $OpenBSD: sshd_config,v 1.104 2021/07/02 05:11:21 dtucker Exp $
+
+# This is the sshd server system-wide configuration file.  See
+# sshd_config(5) for more information.
+
+# This sshd was compiled with PATH=/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin
+
+# The strategy used for options in the default sshd_config shipped with
+# OpenSSH is to specify options with their default value where
+# possible, but leave them commented.  Uncommented options override the
+# default value.
+
+# To modify the system-wide sshd configuration, create a  *.conf  file under
+#  /etc/ssh/sshd_config.d/  which will be automatically included below
+Include /etc/ssh/sshd_config.d/*.conf
+
+# If you want to change the port on a SELinux system, you have to tell
+# SELinux about this change.
+# semanage port -a -t ssh_port_t -p tcp #PORTNUMBER
+#
+#Port 22
+#AddressFamily any
+#ListenAddress 0.0.0.0
+#ListenAddress ::
+
+#HostKey /etc/ssh/ssh_host_rsa_key
+#HostKey /etc/ssh/ssh_host_ecdsa_key
+#HostKey /etc/ssh/ssh_host_ed25519_key
+
+# Ciphers and keying
+#RekeyLimit default none
+
+# Logging
+#SyslogFacility AUTH
+#LogLevel INFO
+
+# Authentication:
+
+LoginGraceTime 20
+PermitRootLogin no
+#StrictModes yes
+MaxAuthTries 3
+#MaxSessions 10
+ChallengeResponseAuthentication no
+
+#PubkeyAuthentication yes
+
+# The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2
+# but this is overridden so installations will only check .ssh/authorized_keys
+AuthorizedKeysFile      .ssh/authorized_keys
+
+#AuthorizedPrincipalsFile none
+
+#AuthorizedKeysCommand none
+#AuthorizedKeysCommandUser nobody
+
+# For this to work you will also need host keys in /etc/ssh/ssh_known_hosts
+#HostbasedAuthentication no
+# Change to yes if you don't trust ~/.ssh/known_hosts for
+# HostbasedAuthentication
+#IgnoreUserKnownHosts no
+# Don't read the user's ~/.rhosts and ~/.shosts files
+#IgnoreRhosts yes
+
+# To disable tunneled clear text passwords, change to no here!
+PasswordAuthentication no
+PermitEmptyPasswords no
+
+# Change to no to disable s/key passwords
+#KbdInteractiveAuthentication yes
+
+# Kerberos options
+KerberosAuthentication no
+#KerberosOrLocalPasswd yes
+#KerberosTicketCleanup yes
+#KerberosGetAFSToken no
+#KerberosUseKuserok yes
+
+# GSSAPI options
+GSSAPIAuthentication no
+#GSSAPICleanupCredentials yes
+#GSSAPIStrictAcceptorCheck yes
+#GSSAPIKeyExchange no
+#GSSAPIEnablek5users no
+
+# Set this to 'yes' to enable PAM authentication, account processing,
+# and session processing. If this is enabled, PAM authentication will
+# be allowed through the KbdInteractiveAuthentication and
+# PasswordAuthentication.  Depending on your PAM configuration,
+# PAM authentication via KbdInteractiveAuthentication may bypass
+# the setting of "PermitRootLogin without-password".
+# If you just want the PAM account and session checks to run without
+# PAM authentication, then enable this but set PasswordAuthentication
+# and KbdInteractiveAuthentication to 'no'.
+# WARNING: 'UsePAM no' is not supported in RHEL and may cause several
+# problems.
+#UsePAM no
+
+AllowAgentForwarding no
+AllowTcpForwarding no
+#GatewayPorts no
+X11Forwarding no
+#X11DisplayOffset 10
+#X11UseLocalhost yes
+#PermitTTY yes
+#PrintMotd yes
+#PrintLastLog yes
+#TCPKeepAlive yes
+PermitUserEnvironment no
+#Compression delayed
+#ClientAliveInterval 0
+#ClientAliveCountMax 3
+#UseDNS no
+#PidFile /var/run/sshd.pid
+#MaxStartups 10:30:100
+PermitTunnel no
+#ChrootDirectory none
+#VersionAddendum none
+
+# no default banner path
+#Banner none
+
+# override default of no subsystems
+Subsystem       sftp    /usr/libexec/openssh/sftp-server
+
+# Example of overriding settings on a per-user basis
+#Match User anoncvs
+#       X11Forwarding no
+#       AllowTcpForwarding no
+#       PermitTTY no
+#       ForceCommand cvs server
+```
 
 🌞 **Clés de chiffrement fortes pour le client**
 
-- trouver une ressource de confiance (je veux le lien en compte-rendu)
-- générez-vous une paire de clés qui utilise un chiffrement fort et une passphrase
-- ne soyez pas non plus absurdes dans le choix du chiffrement quand je dis "fort" (genre pas de RSA avec une clé de taile 98789080932083209 bytes)
+Ressource Partie 4 :
+https://www.digitalocean.com/community/tutorials/how-to-harden-openssh-on-ubuntu-20-04
 
 🌞 **Connectez-vous en SSH à votre VM avec cette paire de clés**
 
-- prouvez en ajoutant `-vvvv` sur la commande `ssh` de connexion que vous utilisez bien cette clé là
+```
+fmaxance@ZeyKiiPC:~$ ssh -vvvv fmaxance@192.168.57.3
+OpenSSH_9.2p1 Debian-2+deb12u2, OpenSSL 3.0.11 19 Sep 2023
+debug1: Reading configuration data /etc/ssh/ssh_config
+debug1: /etc/ssh/ssh_config line 19: include /etc/ssh/ssh_config.d/*.conf matched no files
+debug1: /etc/ssh/ssh_config line 21: Applying options for *
+debug2: resolve_canonicalize: hostname 192.168.57.3 is address
+debug3: expanded UserKnownHostsFile '~/.ssh/known_hosts' -> '/home/fmaxance/.ssh/known_hosts'
+debug3: expanded UserKnownHostsFile '~/.ssh/known_hosts2' -> '/home/fmaxance/.ssh/known_hosts2'
+debug3: ssh_connect_direct: entering
+debug1: Connecting to 192.168.57.3 [192.168.57.3] port 22.
+debug3: set_sock_tos: set socket 3 IP_TOS 0x10
+debug1: Connection established.
+debug1: identity file /home/fmaxance/.ssh/id_rsa type 0
+debug1: identity file /home/fmaxance/.ssh/id_rsa-cert type -1
+debug1: identity file /home/fmaxance/.ssh/id_ecdsa type -1
+debug1: identity file /home/fmaxance/.ssh/id_ecdsa-cert type -1
+debug1: identity file /home/fmaxance/.ssh/id_ecdsa_sk type -1
+debug1: identity file /home/fmaxance/.ssh/id_ecdsa_sk-cert type -1
+debug1: identity file /home/fmaxance/.ssh/id_ed25519 type -1
+debug1: identity file /home/fmaxance/.ssh/id_ed25519-cert type -1
+debug1: identity file /home/fmaxance/.ssh/id_ed25519_sk type -1
+debug1: identity file /home/fmaxance/.ssh/id_ed25519_sk-cert type -1
+debug1: identity file /home/fmaxance/.ssh/id_xmss type -1
+debug1: identity file /home/fmaxance/.ssh/id_xmss-cert type -1
+debug1: identity file /home/fmaxance/.ssh/id_dsa type -1
+debug1: identity file /home/fmaxance/.ssh/id_dsa-cert type -1
+debug1: Local version string SSH-2.0-OpenSSH_9.2p1 Debian-2+deb12u2
+debug1: Remote protocol version 2.0, remote software version OpenSSH_8.7
+debug1: compat_banner: match: OpenSSH_8.7 pat OpenSSH* compat 0x04000000
+debug2: fd 3 setting O_NONBLOCK
+debug1: Authenticating to 192.168.57.3:22 as 'fmaxance'
+debug3: record_hostkey: found key type ED25519 in file /home/fmaxance/.ssh/known_hosts:12
+debug3: load_hostkeys_file: loaded 1 keys from 192.168.57.3
+debug1: load_hostkeys: fopen /home/fmaxance/.ssh/known_hosts2: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts2: No such file or directory
+debug3: order_hostkeyalgs: have matching best-preference key type ssh-ed25519-cert-v01@openssh.com, using HostkeyAlgorithms verbatim
+debug3: send packet: type 20
+debug1: SSH2_MSG_KEXINIT sent
+debug3: receive packet: type 20
+debug1: SSH2_MSG_KEXINIT received
+debug2: local client KEXINIT proposal
+debug2: KEX algorithms: sntrup761x25519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256,ext-info-c,kex-strict-c-v00@openssh.com
+debug2: host key algorithms: ssh-ed25519-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,sk-ssh-ed25519-cert-v01@openssh.com,sk-ecdsa-sha2-nistp256-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ssh-ed25519@openssh.com,sk-ecdsa-sha2-nistp256@openssh.com,rsa-sha2-512,rsa-sha2-256
+debug2: ciphers ctos: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com
+debug2: ciphers stoc: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com
+debug2: MACs ctos: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1
+debug2: MACs stoc: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1
+debug2: compression ctos: none,zlib@openssh.com,zlib
+debug2: compression stoc: none,zlib@openssh.com,zlib
+debug2: languages ctos: 
+debug2: languages stoc: 
+debug2: first_kex_follows 0 
+debug2: reserved 0 
+debug2: peer server KEXINIT proposal
+debug2: KEX algorithms: curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512
+debug2: host key algorithms: rsa-sha2-512,rsa-sha2-256,ecdsa-sha2-nistp256,ssh-ed25519
+debug2: ciphers ctos: aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr
+debug2: ciphers stoc: aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes128-gcm@openssh.com,aes128-ctr
+debug2: MACs ctos: hmac-sha2-256-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,hmac-sha1,umac-128@openssh.com,hmac-sha2-512
+debug2: MACs stoc: hmac-sha2-256-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,hmac-sha1,umac-128@openssh.com,hmac-sha2-512
+debug2: compression ctos: none,zlib@openssh.com
+debug2: compression stoc: none,zlib@openssh.com
+debug2: languages ctos: 
+debug2: languages stoc: 
+debug2: first_kex_follows 0 
+debug2: reserved 0 
+debug1: kex: algorithm: curve25519-sha256
+debug1: kex: host key algorithm: ssh-ed25519
+debug1: kex: server->client cipher: chacha20-poly1305@openssh.com MAC: <implicit> compression: none
+debug1: kex: client->server cipher: chacha20-poly1305@openssh.com MAC: <implicit> compression: none
+debug3: send packet: type 30
+debug1: expecting SSH2_MSG_KEX_ECDH_REPLY
+debug3: receive packet: type 31
+debug1: SSH2_MSG_KEX_ECDH_REPLY received
+debug1: Server host key: ssh-ed25519 SHA256:Pu68IMCzfs/658FYeor7Sv3Yv67Z7AQ1DIrl/bYLC/0
+debug3: record_hostkey: found key type ED25519 in file /home/fmaxance/.ssh/known_hosts:12
+debug3: load_hostkeys_file: loaded 1 keys from 192.168.57.3
+debug1: load_hostkeys: fopen /home/fmaxance/.ssh/known_hosts2: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts2: No such file or directory
+debug1: Host '192.168.57.3' is known and matches the ED25519 host key.
+debug1: Found key in /home/fmaxance/.ssh/known_hosts:12
+debug3: send packet: type 21
+debug2: ssh_set_newkeys: mode 1
+debug1: rekey out after 134217728 blocks
+debug1: SSH2_MSG_NEWKEYS sent
+debug1: expecting SSH2_MSG_NEWKEYS
+debug3: receive packet: type 21
+debug1: SSH2_MSG_NEWKEYS received
+debug2: ssh_set_newkeys: mode 0
+debug1: rekey in after 134217728 blocks
+debug3: ssh_get_authentication_socket_path: path '/run/user/1000/openssh_agent'
+debug1: get_agent_identities: bound agent to hostkey
+debug1: get_agent_identities: ssh_fetch_identitylist: agent contains no identities
+debug1: Will attempt key: /home/fmaxance/.ssh/id_rsa RSA SHA256:kC4bPcRWPV8lcxpMqLB5kiNy4AChBEF4T9wh5Qhk9Yc
+debug1: Will attempt key: /home/fmaxance/.ssh/id_ecdsa 
+debug1: Will attempt key: /home/fmaxance/.ssh/id_ecdsa_sk 
+debug1: Will attempt key: /home/fmaxance/.ssh/id_ed25519 
+debug1: Will attempt key: /home/fmaxance/.ssh/id_ed25519_sk 
+debug1: Will attempt key: /home/fmaxance/.ssh/id_xmss 
+debug1: Will attempt key: /home/fmaxance/.ssh/id_dsa 
+debug2: pubkey_prepare: done
+debug3: send packet: type 5
+debug3: receive packet: type 7
+debug1: SSH2_MSG_EXT_INFO received
+debug1: kex_input_ext_info: server-sig-algs=<ssh-ed25519,sk-ssh-ed25519@openssh.com,ssh-rsa,rsa-sha2-256,rsa-sha2-512,ssh-dss,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ecdsa-sha2-nistp256@openssh.com,webauthn-sk-ecdsa-sha2-nistp256@openssh.com>
+debug3: receive packet: type 6
+debug2: service_accept: ssh-userauth
+debug1: SSH2_MSG_SERVICE_ACCEPT received
+debug3: send packet: type 50
+debug3: receive packet: type 53
+debug3: input_userauth_banner: entering
+\S
+Kernel \r on an \m
+debug3: receive packet: type 51
+debug1: Authentications that can continue: publickey,gssapi-keyex,gssapi-with-mic
+debug3: start over, passed a different list publickey,gssapi-keyex,gssapi-with-mic
+debug3: preferred gssapi-with-mic,publickey,keyboard-interactive,password
+debug3: authmethod_lookup gssapi-with-mic
+debug3: remaining preferred: publickey,keyboard-interactive,password
+debug3: authmethod_is_enabled gssapi-with-mic
+debug1: Next authentication method: gssapi-with-mic
+debug1: No credentials were supplied, or the credentials were unavailable or inaccessible
+No Kerberos credentials available (default cache: FILE:/tmp/krb5cc_1000)
+
+
+debug1: No credentials were supplied, or the credentials were unavailable or inaccessible
+No Kerberos credentials available (default cache: FILE:/tmp/krb5cc_1000)
+
+
+debug2: we did not send a packet, disable method
+debug3: authmethod_lookup publickey
+debug3: remaining preferred: keyboard-interactive,password
+debug3: authmethod_is_enabled publickey
+debug1: Next authentication method: publickey
+debug1: Offering public key: /home/fmaxance/.ssh/id_rsa RSA SHA256:kC4bPcRWPV8lcxpMqLB5kiNy4AChBEF4T9wh5Qhk9Yc
+debug3: send packet: type 50
+debug2: we sent a publickey packet, wait for reply
+debug3: receive packet: type 60
+debug1: Server accepts key: /home/fmaxance/.ssh/id_rsa RSA SHA256:kC4bPcRWPV8lcxpMqLB5kiNy4AChBEF4T9wh5Qhk9Yc
+debug3: sign_and_send_pubkey: using publickey with RSA SHA256:kC4bPcRWPV8lcxpMqLB5kiNy4AChBEF4T9wh5Qhk9Yc
+debug3: sign_and_send_pubkey: signing using rsa-sha2-512 SHA256:kC4bPcRWPV8lcxpMqLB5kiNy4AChBEF4T9wh5Qhk9Yc
+Enter passphrase for key '/home/fmaxance/.ssh/id_rsa': 
+debug3: send packet: type 50
+debug3: receive packet: type 52
+Authenticated to 192.168.57.3 ([192.168.57.3]:22) using "publickey".
+debug1: channel 0: new session [client-session] (inactive timeout: 0)
+debug3: ssh_session2_open: channel_new: 0
+debug2: channel 0: send open
+debug3: send packet: type 90
+debug1: Requesting no-more-sessions@openssh.com
+debug3: send packet: type 80
+debug1: Entering interactive session.
+debug1: pledge: filesystem
+debug3: client_repledge: enter
+debug3: receive packet: type 80
+debug1: client_input_global_request: rtype hostkeys-00@openssh.com want_reply 0
+debug3: client_input_hostkeys: received RSA key SHA256:1+yYr/8sPyzAfBya4BiYSAXJVaryS0J0eCXgrJRbbiI
+debug3: client_input_hostkeys: received ECDSA key SHA256:Qo2Sxasc9AyfkWYXVFb/9ehsV7Xx3g+VEiwXmdwczFA
+debug3: client_input_hostkeys: received ED25519 key SHA256:Pu68IMCzfs/658FYeor7Sv3Yv67Z7AQ1DIrl/bYLC/0
+debug1: client_input_hostkeys: searching /home/fmaxance/.ssh/known_hosts for 192.168.57.3 / (none)
+debug3: hostkeys_foreach: reading file "/home/fmaxance/.ssh/known_hosts"
+debug3: hostkeys_find: found ssh-ed25519 key under different name/addr at /home/fmaxance/.ssh/known_hosts:6
+debug3: hostkeys_find: found ssh-rsa key under different name/addr at /home/fmaxance/.ssh/known_hosts:7
+debug3: hostkeys_find: found ecdsa-sha2-nistp256 key under different name/addr at /home/fmaxance/.ssh/known_hosts:8
+debug3: hostkeys_find: found ssh-ed25519 key under different name/addr at /home/fmaxance/.ssh/known_hosts:9
+debug3: hostkeys_find: found ssh-ed25519 key under different name/addr at /home/fmaxance/.ssh/known_hosts:10
+debug3: hostkeys_find: found ssh-ed25519 key under different name/addr at /home/fmaxance/.ssh/known_hosts:11
+debug3: hostkeys_find: found ssh-ed25519 key at /home/fmaxance/.ssh/known_hosts:12
+debug1: client_input_hostkeys: searching /home/fmaxance/.ssh/known_hosts2 for 192.168.57.3 / (none)
+debug1: client_input_hostkeys: hostkeys file /home/fmaxance/.ssh/known_hosts2 does not exist
+debug3: client_input_hostkeys: 3 server keys: 2 new, 18446744073709551615 retained, 2 incomplete match. 0 to remove
+debug1: client_input_hostkeys: host key found matching a different name/address, skipping UserKnownHostsFile update
+debug3: client_repledge: enter
+debug3: receive packet: type 4
+debug1: Remote: /home/fmaxance/.ssh/authorized_keys:1: key options: port-forwarding pty user-rc
+debug3: receive packet: type 4
+debug1: Remote: /home/fmaxance/.ssh/authorized_keys:1: key options: port-forwarding pty user-rc
+debug3: receive packet: type 91
+debug2: channel_input_open_confirmation: channel 0: callback start
+debug2: fd 3 setting TCP_NODELAY
+debug3: set_sock_tos: set socket 3 IP_TOS 0x10
+debug2: client_session2_setup: id 0
+debug2: channel 0: request pty-req confirm 1
+debug3: send packet: type 98
+debug1: Sending environment.
+debug3: Ignored env SHELL
+debug3: Ignored env SESSION_MANAGER
+debug3: Ignored env WINDOWID
+debug3: Ignored env QT_ACCESSIBILITY
+debug3: Ignored env COLORTERM
+debug3: Ignored env XDG_CONFIG_DIRS
+debug3: Ignored env SSH_AGENT_LAUNCHER
+debug3: Ignored env XDG_SESSION_PATH
+debug3: Ignored env LANGUAGE
+debug3: Ignored env SSH_AUTH_SOCK
+debug3: Ignored env SHELL_SESSION_ID
+debug3: Ignored env DESKTOP_SESSION
+debug3: Ignored env GTK_RC_FILES
+debug3: Ignored env XCURSOR_SIZE
+debug3: Ignored env GTK_MODULES
+debug3: Ignored env XDG_SEAT
+debug3: Ignored env PWD
+debug3: Ignored env XDG_SESSION_DESKTOP
+debug3: Ignored env LOGNAME
+debug3: Ignored env XDG_SESSION_TYPE
+debug3: Ignored env SYSTEMD_EXEC_PID
+debug3: Ignored env XAUTHORITY
+debug3: Ignored env XKB_DEFAULT_MODEL
+debug3: Ignored env GTK2_RC_FILES
+debug3: Ignored env HOME
+debug1: channel 0: setting env LANG = "en_US.UTF-8"
+debug2: channel 0: request env confirm 0
+debug3: send packet: type 98
+debug3: Ignored env LS_COLORS
+debug3: Ignored env XDG_CURRENT_DESKTOP
+debug3: Ignored env KONSOLE_DBUS_SERVICE
+debug3: Ignored env WAYLAND_DISPLAY
+debug3: Ignored env KONSOLE_DBUS_SESSION
+debug3: Ignored env PROFILEHOME
+debug3: Ignored env XDG_SEAT_PATH
+debug3: Ignored env QTWEBENGINE_DICTIONARIES_PATH
+debug3: Ignored env INVOCATION_ID
+debug3: Ignored env KONSOLE_VERSION
+debug3: Ignored env MANAGERPID
+debug3: Ignored env KDE_SESSION_UID
+debug3: Ignored env XKB_DEFAULT_LAYOUT
+debug3: Ignored env XDG_ACTIVATION_TOKEN
+debug3: Ignored env XDG_SESSION_CLASS
+debug3: Ignored env TERM
+debug3: Ignored env USER
+debug3: Ignored env COLORFGBG
+debug3: Ignored env PLASMA_USE_QT_SCALING
+debug3: Ignored env KDE_SESSION_VERSION
+debug3: Ignored env PAM_KWALLET5_LOGIN
+debug3: Ignored env QT_WAYLAND_FORCE_DPI
+debug3: Ignored env DISPLAY
+debug3: Ignored env SHLVL
+debug3: Ignored env XDG_VTNR
+debug3: Ignored env XDG_SESSION_ID
+debug3: Ignored env XDG_RUNTIME_DIR
+debug3: Ignored env XKB_DEFAULT_VARIANT
+debug3: Ignored env QT_AUTO_SCREEN_SCALE_FACTOR
+debug3: Ignored env JOURNAL_STREAM
+debug3: Ignored env XCURSOR_THEME
+debug3: Ignored env XDG_DATA_DIRS
+debug3: Ignored env KDE_FULL_SESSION
+debug3: Ignored env PATH
+debug3: Ignored env DBUS_SESSION_BUS_ADDRESS
+debug3: Ignored env KDE_APPLICATIONS_AS_SCOPE
+debug3: Ignored env KONSOLE_DBUS_WINDOW
+debug3: Ignored env _
+debug2: channel 0: request shell confirm 1
+debug3: send packet: type 98
+debug3: client_repledge: enter
+debug1: pledge: fork
+debug2: channel_input_open_confirmation: channel 0: callback done
+debug2: channel 0: open confirm rwindow 0 rmax 32768
+debug3: receive packet: type 99
+debug2: channel_input_status_confirm: type 99 id 0
+debug2: PTY allocation request accepted on channel 0
+debug2: channel 0: rcvd adjust 2097152
+debug3: receive packet: type 99
+debug2: channel_input_status_confirm: type 99 id 0
+debug2: shell request accepted on channel 0
+Last login: Fri Jan 19 09:30:39 2024 from 192.168.57.1
+```
 
 ## 4. DoT
 
