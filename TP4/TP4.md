@@ -207,5 +207,3 @@ Dans cette section, le coeur du sujet, vous allez développer un script `bash` q
 - écrire des fonctions plutôt que tout à la suite
 
 > Le but c'est de bosser sur le coeur du sujet : harden une machine Linux. En plus, être capable de l'automatiser comme ça on peut le lancer sur n'importe quelle nouvelle machine. Et aussi, vous faire prendre du skill sur `bash`.
-
-![Feels good](./img/feels_good.png)
